@@ -10,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.Random;
@@ -124,8 +125,9 @@ public class Main extends Application {
 
     private Label generateWarning(){
         Label warningLabel = new Label("Надто велика кількість кругів. Не помістяться!");
-        warningLabel.setLayoutX(WIDTH/4);
-        warningLabel.setLayoutY(HEIGHT/2);
+        warningLabel.setLayoutX(WIDTH/6);
+        warningLabel.setLayoutY(HEIGHT/3);
+        warningLabel.setFont(new Font("Arial", 30));
         return warningLabel;
     }
 
