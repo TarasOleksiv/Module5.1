@@ -1,4 +1,4 @@
-package ua.goit.java8.module6.task1;
+package ua.goit.java8.module6.task2;
 
 /**
  * Created by t.oleksiv on 26/07/2017.
@@ -9,21 +9,23 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main extends Application {
     public static final int WIDTH = 900;
     public static final int HEIGHT = 825;
-    public static final int MARGIN = 100;
-    public static final int EYES_NOSE = 3;
-    private static int count;
-    private static int min_radius;
-    private static int max_radius;
+    public static final int MARGIN = 100;   // розмір поля
+
+    public static final double CIRCLE = 360;    // повний кут в градусах
+    public static final double SQUARE = 90;     // прямий кут в градусах
+    public static final int POLYGON = 5;        // кількість сторін многокутника
+
+    private static double x;
+    private static double y;
+    private static double radius;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -31,14 +33,19 @@ public class Main extends Application {
         primaryStage.setWidth(WIDTH);
         primaryStage.setHeight(HEIGHT);
 
-        primaryStage.setTitle("Сніговик");
+        primaryStage.setTitle("Зірочка");
         Pane root = new Pane();
         getInput();
 
-        // Перевіряєм чи кола вмістяться на сцені.
-        // Якщо так - генеруєм кола, якщо ні - генеруєм попередження
-        if (checkCount(count,max_radius)) {
-            root.getChildren().addAll(generateCircles(count, min_radius,max_radius));
+        // Перевіряєм чи зірка поміститься на сцені.
+        // Якщо так - генеруєм зірку, якщо ні - генеруєм попередження
+
+        if (checkSize(x,y,radius)) {
+            root.getChildren().addAll(generateLines(x,y-radius,radius));
+            double radius_pentagon = radius * Math.tan(Math.toRadians(SQUARE - CIRCLE/POLYGON));
+            //System.out.println(radius_pentagon);
+            //System.out.println(y+radius_pentagon);
+            root.getChildren().addAll(generatePentagon(x,y,radius_pentagon));
         } else {
             root.getChildren().addAll(generateWarning());
         }
@@ -52,93 +59,88 @@ public class Main extends Application {
         launch(args);
     }
 
-    // Генерація кіл
-    private Circle[] generateCircles(int count, int min_radius, int max_radius) {
-        Random random = new Random();
-
-        Circle[] circles = new Circle[count+EYES_NOSE];
-        int radius;
-        int radius_old = MARGIN;
-        int x;
-        int y = HEIGHT;
-        int count_i = 0;
-        for(int i = 0; i < circles.length-EYES_NOSE; i++) {
-
-            // радіус рендомний
-            radius = random.nextInt(max_radius - min_radius) + min_radius;
-            // нова координата y гарантує нам дотикання наступного кола до попереднього
-            y -= radius + radius_old;
-            radius_old = radius;
-
-            circles[i] = new Circle(
-                    (int)WIDTH/2,
-                    y,
-                    radius,
-                    Paint.valueOf(getColor().toString()));
-            count_i = i;    // поточний лічильник кількості кіл
+    // Генерація великої зірки через масив ліній
+    private Line[] generateLines(double x, double y, double radius){
+        Line[] lines = new Line[POLYGON];
+        double deltaX;      // зміщення по горизонталі до наступної вершини (через одну по колу, тому множник 2):  R * cos(90° + 2 * 72°); 72° = 360° / 5
+        double deltaY;      // зміщення по вертикалі до наступної вершини (через одну, тому множник 2):  R * (1 - sin(90° + 2 * 72°)); 72° = 360° / 5
+        double x_old = x;   // стартова позиція по горизонталі над центром зірки
+        double y_old = y;   // стартова позиція по вертикалі над центром зірки
+        for (int i = 0; i < lines.length; i++){
+            deltaX = radius * Math.cos(Math.toRadians(SQUARE + (i+1)*2*CIRCLE/POLYGON));
+            deltaY = radius * (1 - Math.sin(Math.toRadians(SQUARE + (i+1)*2*CIRCLE/POLYGON)));
+            // сполучаєм дві послідовні по циклу вершини (через одну по колу)
+            lines[i] = new Line(x_old,
+                    y_old,
+                    x + deltaX,
+                    y + deltaY);
+            x_old = x + deltaX;
+            y_old = y + deltaY;
         }
+        return lines;
+    }
 
-        // останні 3 кола - генерація очей та носа всередині голови
-        for (int i = 0; i < EYES_NOSE; i++){
-            circles[i + circles.length -EYES_NOSE] = generateEyesNose(circles[count_i])[i];
+    // Генерація малого п'ятикутника через масив ліній
+    private Line[] generatePentagonTest(double x, double y, double radius){
+        Color color = Color.color(1,
+                0,
+                0);
+        Line[] lines = new Line[POLYGON];
+        double deltaX;      // зміщення по горизонталі до наступної вершини :  R * cos(90° + 72°); 72° = 360° / 5
+        double deltaY;      // зміщення по вертикалі до наступної вершини :  R * (1 - sin(90° + 72°)); 72° = 360° / 5
+        double x_old = x;   // стартова позиція по горизонталі під центром зірки
+        double y_old = y;   // стартова позиція по вертикалі під центром зірки
+        //System.out.println("i = -1 ; x: " + x_old + " ; y: " + y_old);
+        for (int i = 0; i < lines.length; i++){
+            deltaX = radius * Math.cos(Math.toRadians(3*SQUARE + (i+1)*CIRCLE/POLYGON));
+            deltaY = radius * (1 - Math.sin(Math.toRadians(3*SQUARE + (i+1)*CIRCLE/POLYGON)));
+            // сполучаєм дві послідовні по циклу вершини
+            lines[i] = new Line(x_old,
+                    y_old,
+                    x + deltaX,
+                    y + deltaY);
+            lines[i].setFill(Paint.valueOf(color.toString()));
+            x_old = x + deltaX;
+            y_old = y + deltaY;
+            //System.out.println("i: " + i + " ; x: " + x_old + " ; y: " + y_old);
         }
-        return circles;
+        return lines;
     }
 
-    // Перевірка чи введена кількість кіл з максимальним радіусом може поміститись на картинці
-    private boolean checkCount(int count, int max_radius){
-        return 2 * max_radius * count < (HEIGHT - MARGIN);
+    private Line[] generatePentagon(double x, double y, double radius){
+        Color color = Color.color(1,
+                0,
+                0);
+        Line[] lines = new Line[POLYGON];
+        double deltaX;      // зміщення по горизонталі до наступної вершини :  R * cos(90° + 72°); 72° = 360° / 5
+        double deltaY;      // зміщення по вертикалі до наступної вершини :  R * (1 - sin(90° + 72°)); 72° = 360° / 5
+        double x_old = x + radius * Math.cos(Math.toRadians(SQUARE + 1/2 * (CIRCLE/POLYGON)));   // стартова позиція по горизонталі під центром зірки
+        double y_old = y + radius * (1 - Math.sin(Math.toRadians(SQUARE + 1/2 * (CIRCLE/POLYGON))));   // стартова позиція по вертикалі під центром зірки
+        //System.out.println("i = -1 ; x: " + x_old + " ; y: " + y_old);
+        for (int i = 0; i < lines.length; i++){
+            deltaX = radius * Math.cos(Math.toRadians(SQUARE + (2*(i+1)+1)/2 * (CIRCLE/POLYGON)));
+            deltaY = radius * (1 - Math.sin(Math.toRadians(SQUARE + (2*(i+1)+1)/2 * (CIRCLE/POLYGON))));
+            // сполучаєм дві послідовні по циклу вершини
+            lines[i] = new Line(x_old,
+                    y_old,
+                    x + deltaX,
+                    y + deltaY);
+            lines[i].setFill(Paint.valueOf(color.toString()));
+            x_old = x + deltaX;
+            y_old = y + deltaY;
+            //System.out.println("i: " + i + " ; x: " + x_old + " ; y: " + y_old);
+        }
+        return lines;
     }
 
-    // Генерація очей та носа всередині голови (останнього кола)
-    // Очі та ніс мають фіксований радіус, що обчислюється на основі радіусу голови
-    // Розташування очей та носа теж фіксоване по відношенню до центру голови
-    private Circle[] generateEyesNose(Circle circle){
-        final int DIM = 3;
-        int x_head = (int)circle.getCenterX();
-        int y_head = (int)circle.getCenterY();
-        int radius_head = (int)circle.getRadius();
-
-        // фіксований радіус очей та носа
-        int radius = (int)radius_head/4;
-
-        Circle[] circles = new Circle[DIM];
-
-        // ліве око - зміщено вліво та вгору на фіксовану відстань від центру голови
-        circles[0] = new Circle(
-                x_head - 2*radius,
-                y_head - 2*radius,
-                radius,
-                Paint.valueOf(getColor().toString()));
-
-        // праве око - зміщено вправо та вгору на фіксовану відстань від центру голови
-        circles[1] = new Circle(
-                x_head + 2*radius,
-                y_head - 2*radius,
-                radius,
-                Paint.valueOf(getColor().toString()));
-
-        // ніс - розташований точно по центру голови
-        circles[2] = new Circle(
-                x_head,
-                y_head,
-                radius,
-                Paint.valueOf(getColor().toString()));
-        return circles;
-    }
-
-    private Color getColor(){
-        Random random = new Random();
-        Color color = Color.color(random.nextDouble(),
-                random.nextDouble(),
-                random.nextDouble(),
-                0.6f);
-        return color;
+    // Перевірка чи зірка поміститься на сцені
+    private boolean checkSize(double x, double y, double radius){
+        return ((x - radius > MARGIN) && (x + radius < WIDTH - MARGIN) && (y - radius > MARGIN) && (y + radius < HEIGHT - MARGIN));
     }
 
     // Генерація попередження
     private Label generateWarning(){
-        Label warningLabel = new Label("Надто велика кількість кругів. Не помістяться!");
+        Label warningLabel = new Label("Зірка не вміщається на картинці!");
         warningLabel.setLayoutX(WIDTH/6);
         warningLabel.setLayoutY(HEIGHT/3);
         warningLabel.setFont(new Font("Arial", 30));
@@ -148,14 +150,14 @@ public class Main extends Application {
     // Отримуєм дані з консолі
     private void getInput(){
         Scanner sc = new Scanner(System.in);
-        System.out.print("Введіть кількість кругів: ");
-        count = sc.nextInt();
+        System.out.print("Введіть координату Х центру зірки: ");
+        x = sc.nextInt();
         sc.nextLine();
-        System.out.print("Введіть мінімальний радіус: ");
-        min_radius = sc.nextInt();
+        System.out.print("Введіть координату Y центру зірки: ");
+        y = sc.nextInt();
         sc.nextLine();
-        System.out.print("Введіть максимальний радіус: ");
-        max_radius = sc.nextInt();
+        System.out.print("Введіть радіус зірки: ");
+        radius = sc.nextInt();
         sc.nextLine();
     }
 }
