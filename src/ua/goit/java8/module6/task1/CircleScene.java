@@ -124,24 +124,40 @@ public class CircleScene {
     }
 
     private void graphicInterface() {
+
+        Label countFieldLabel = new Label("Кількість кругів: ");
+        countFieldLabel.setTranslateX(10);
+        countFieldLabel.setTranslateY(10);
+
         TextField countField = new TextField();
-        countField.setTranslateX(10);
+        countField.setTranslateX(140);
         countField.setTranslateY(10);
-        countField.setText("50");
+        countField.setPrefWidth(50);
+        countField.setText("10");
+
+        Label minRadiusLabel = new Label("Мінімальний радіус: ");
+        minRadiusLabel.setTranslateX(10);
+        minRadiusLabel.setTranslateY(40);
 
         TextField minRadius = new TextField();
-        minRadius.setTranslateX(10);
+        minRadius.setTranslateX(140);
         minRadius.setTranslateY(40);
+        minRadius.setPrefWidth(50);
         minRadius.setText("20");
 
+        Label maxRadiusLabel = new Label("Максимальний радіус: ");
+        maxRadiusLabel.setTranslateX(10);
+        maxRadiusLabel.setTranslateY(70);
+
         TextField maxRadius = new TextField();
-        maxRadius.setTranslateX(10);
+        maxRadius.setTranslateX(140);
         maxRadius.setTranslateY(70);
+        maxRadius.setPrefWidth(50);
         maxRadius.setText("30");
 
         Button generateButton = new Button();
         generateButton.setTranslateX(10);
-        generateButton.setTranslateY(100);
+        generateButton.setTranslateY(110);
         generateButton.setText("Згенерувати");
         generateButton.setOnMouseClicked(event -> {
             int count = Integer.parseInt(countField.getText());
@@ -154,13 +170,22 @@ public class CircleScene {
 
         Button redPaintAll = new Button();
         redPaintAll.setTranslateX(10);
-        redPaintAll.setTranslateY(130);
+        redPaintAll.setTranslateY(140);
         redPaintAll.setText("Замалювати червоним");
         redPaintAll.setOnMouseClicked(event -> {
             paintAll(Color.color(1, 0, 0));
         });
 
-        root.getChildren().addAll(countField, minRadius, maxRadius, generateButton, redPaintAll);
+        Button gradientPaintAll = new Button();
+        gradientPaintAll.setTranslateX(10);
+        gradientPaintAll.setTranslateY(170);
+        gradientPaintAll.setText("Градієнт чорного");
+        gradientPaintAll.setOnMouseClicked(event -> {
+            paintAllGradient(Color.color(0, 0, 0));
+        });
+
+        root.getChildren().addAll(countField, minRadius, maxRadius, generateButton, redPaintAll, gradientPaintAll);
+        root.getChildren().addAll(countFieldLabel, minRadiusLabel, maxRadiusLabel);
     }
 
     private void clearCircles() {
@@ -180,5 +205,18 @@ public class CircleScene {
 
         for (int i = 0; i < circles.length; i++)
             circles[i].setFill(Paint.valueOf(color.toString()));
+    }
+
+    private void paintAllGradient(Color color) {
+        if (circles == null) return;
+        double red = color.getRed();
+        double green = color.getGreen();
+        double blue = color.getBlue();
+        double step;
+
+        for (int i = 0; i < circles.length; i++) {
+            step = (double)i / circles.length;
+            circles[i].setFill(Paint.valueOf(Color.color(red + step, green + step, blue + step).toString()));
+        }
     }
 }
