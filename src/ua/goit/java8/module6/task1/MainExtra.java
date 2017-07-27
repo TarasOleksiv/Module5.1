@@ -21,8 +21,8 @@ import java.util.Scanner;
 public class MainExtra extends Application {
     public static final int WIDTH = 900;
     public static final int HEIGHT = 825;
-    public static final int MARGIN = 100;
-    public static final int EYES_NOSE = 3;
+    public static final int MARGIN = 100;   //нижнє та верхнє поле
+    public static final int EYES_NOSE = 3;  //кількість кіл для очей та носа
 
 
     @Override

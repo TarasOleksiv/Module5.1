@@ -33,12 +33,8 @@ public class CircleScene {
 
     private void generateCircles(int count, int min_radius, int max_radius) {
 
+        // викликаємо метод для первірки чи помістяться кола на картинці
         if (checkCount(count,max_radius)) {
-            //    root.getChildren().addAll(generateCircles(count, min_radius,max_radius));
-            //} else {
-            //    root.getChildren().addAll(generateWarning());
-            //}
-
             Random random = new Random();
             circles = new Circle[count + Main.EYES_NOSE];
             int radius;
@@ -63,15 +59,20 @@ public class CircleScene {
             }
             root.getChildren().addAll(circles);
         } else {
+            // якщо не кола не вміщаються, малюємо попередження
             generateWarning();
         }
 
     }
 
+    // метод для перевірки чи вказана кількість кіл з можливим максимальним радіусом поміститься на картинці
     private boolean checkCount(int count, int max_radius){
         return 2 * max_radius * count < (Main.HEIGHT - Main.MARGIN);
     }
 
+    // генерація очей та носа всередині останнього кола
+    // всі очі та ніс мають однаковий фіксований радіус, який обчислюється на основі радіусу голови
+    // розташування центру очей та носа фіксоване по відношенню до центру голови
     private Circle[] generateEyesNose(Circle circle){
         Random random = new Random();
         final int DIM = 3;
@@ -79,25 +80,26 @@ public class CircleScene {
         int y_head = (int)circle.getCenterY();
         int radius_head = (int)circle.getRadius();
 
+        // радіус очей та носа
         int radius = (int)radius_head/4;
 
         Circle[] circles_head = new Circle[DIM];
 
-        // ліве око
+        // ліве око - зміщення вліво та вгору від центра голови на фіксовану відстань
         circles_head[0] = new Circle(
                 x_head - 2*radius,
                 y_head - 2*radius,
                 radius,
                 Paint.valueOf(getColor().toString()));
 
-        // праве око
+        // праве око - зміщення вправо та вгору від центра голови на фіксовану відстань
         circles_head[1] = new Circle(
                 x_head + 2*radius,
                 y_head - 2*radius,
                 radius,
                 Paint.valueOf(getColor().toString()));
 
-        // ніс
+        // ніс - розташування точно в центрі голови
         circles_head[2] = new Circle(
                 x_head,
                 y_head,
@@ -115,6 +117,7 @@ public class CircleScene {
         return color;
     }
 
+    // метод для генерації попередження
     private void generateWarning(){
         warningLabel = new Label("Надто велика кількість кругів. Не помістяться!");
         warningLabel.setLayoutX(Main.WIDTH/6);
@@ -123,6 +126,7 @@ public class CircleScene {
         root.getChildren().addAll(warningLabel);
     }
 
+    // основний метод виведення зображення на сцені
     private void graphicInterface() {
 
         Label countFieldLabel = new Label("Кількість кругів: ");
@@ -188,18 +192,21 @@ public class CircleScene {
         root.getChildren().addAll(countFieldLabel, minRadiusLabel, maxRadiusLabel);
     }
 
+    // метод для стирання всіх кіл
     private void clearCircles() {
         if (circles != null && circles.length > 0) {
             root.getChildren().removeAll(circles);
         }
     }
 
+    // метод для стирання попередження
     private void clearWarnings(){
         if (warningLabel != null){
             root.getChildren().removeAll(warningLabel);
         }
     }
 
+    // метод для замальовки всіх кіл вказаним кольором
     private void paintAll(Color color) {
         if (circles == null) return;
 
@@ -207,15 +214,16 @@ public class CircleScene {
             circles[i].setFill(Paint.valueOf(color.toString()));
     }
 
+    // метод для замальовки всіх кіл градієнтом заданого кольору
     private void paintAllGradient(Color color) {
         if (circles == null) return;
         double red = color.getRed();
         double green = color.getGreen();
         double blue = color.getBlue();
-        double step;
+        double step;    // крок градієнта
 
         for (int i = 0; i < circles.length; i++) {
-            step = (double)i / circles.length;
+            step = (double)i / circles.length;     // крок градієнта обчислюєм пропорційно до кількості кіл
             circles[i].setFill(Paint.valueOf(Color.color(red + step, green + step, blue + step).toString()));
         }
     }
