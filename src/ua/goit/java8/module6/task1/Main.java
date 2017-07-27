@@ -34,6 +34,9 @@ public class Main extends Application {
         primaryStage.setTitle("Сніговик");
         Pane root = new Pane();
         getInput();
+
+        // Перевіряєм чи кола вмістяться на сцені.
+        // Якщо так - генеруєм кола, якщо ні - генеруєм попередження
         if (checkCount(count,max_radius)) {
             root.getChildren().addAll(generateCircles(count, min_radius,max_radius));
         } else {
@@ -49,6 +52,7 @@ public class Main extends Application {
         launch(args);
     }
 
+    // Генерація кіл
     private Circle[] generateCircles(int count, int min_radius, int max_radius) {
         Random random = new Random();
 
@@ -59,7 +63,10 @@ public class Main extends Application {
         int y = HEIGHT;
         int count_i = 0;
         for(int i = 0; i < circles.length-EYES_NOSE; i++) {
+
+            // радіус рендомний
             radius = random.nextInt(max_radius - min_radius) + min_radius;
+            // нова координата y гарантує нам дотикання наступного кола до попереднього
             y -= radius + radius_old;
             radius_old = radius;
 
@@ -68,44 +75,50 @@ public class Main extends Application {
                     y,
                     radius,
                     Paint.valueOf(getColor().toString()));
-            count_i = i;
+            count_i = i;    // поточний лічильник кількості кіл
         }
+
+        // останні 3 кола - генерація очей та носа всередині голови
         for (int i = 0; i < EYES_NOSE; i++){
             circles[i + circles.length -EYES_NOSE] = generateEyesNose(circles[count_i])[i];
         }
         return circles;
     }
 
+    // Перевірка чи введена кількість кіл з максимальним радіусом може поміститись на картинці
     private boolean checkCount(int count, int max_radius){
         return 2 * max_radius * count < (HEIGHT - MARGIN);
     }
 
+    // Генерація очей та носа всередині голови (останнього кола)
+    // Очі та ніс мають фіксований радіус, що обчислюється на основі радіусу голови
+    // Розташування очей та носа теж фіксоване по відношенню до центру голови
     private Circle[] generateEyesNose(Circle circle){
-        Random random = new Random();
         final int DIM = 3;
         int x_head = (int)circle.getCenterX();
         int y_head = (int)circle.getCenterY();
         int radius_head = (int)circle.getRadius();
 
+        // фіксований радіус очей та носа
         int radius = (int)radius_head/4;
 
         Circle[] circles = new Circle[DIM];
 
-        // ліве око
+        // ліве око - зміщено вліво та вгору на фіксовану відстань від центру голови
         circles[0] = new Circle(
                 x_head - 2*radius,
                 y_head - 2*radius,
                 radius,
                 Paint.valueOf(getColor().toString()));
 
-        // праве око
+        // праве око - зміщено вправо та вгору на фіксовану відстань від центру голови
         circles[1] = new Circle(
                 x_head + 2*radius,
                 y_head - 2*radius,
                 radius,
                 Paint.valueOf(getColor().toString()));
 
-        // ніс
+        // ніс - розташований точно по центру голови
         circles[2] = new Circle(
                 x_head,
                 y_head,
@@ -123,6 +136,7 @@ public class Main extends Application {
         return color;
     }
 
+    // Генерація попередження
     private Label generateWarning(){
         Label warningLabel = new Label("Надто велика кількість кругів. Не помістяться!");
         warningLabel.setLayoutX(WIDTH/6);
@@ -131,8 +145,8 @@ public class Main extends Application {
         return warningLabel;
     }
 
+    // Отримуєм дані з консолі
     private void getInput(){
-        int[] result = new int[3];
         Scanner sc = new Scanner(System.in);
         System.out.print("Введіть кількість кругів: ");
         count = sc.nextInt();
