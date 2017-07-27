@@ -31,8 +31,8 @@ public class CircleScene {
         primaryStage.show();
     }
 
+    // метод для генерації кіл
     private void generateCircles(int count, int min_radius, int max_radius) {
-
         // викликаємо метод для первірки чи помістяться кола на картинці
         if (checkCount(count,max_radius)) {
             Random random = new Random();
@@ -43,17 +43,19 @@ public class CircleScene {
             int y = Main.HEIGHT;
             int count_i = 0;
             for (int i = 0; i < circles.length - Main.EYES_NOSE; i++) {
-                radius = random.nextInt(max_radius - min_radius) + min_radius;
-                y -= radius + radius_old;
+                radius = random.nextInt(max_radius - min_radius) + min_radius;      // радіус рендомний
+                y -= radius + radius_old;       // нова координата y гарантує нам дотикання нового кола до старого
                 radius_old = radius;
 
                 circles[i] = new Circle(
-                        (int) Main.WIDTH / 2,
+                        (int) Main.WIDTH / 2,   // координата х - фіксована по центру
                         y,
                         radius,
                         Paint.valueOf(getColor().toString()));
-                count_i = i;
+                count_i = i;    // поточна кількість кіл (потрібна для того, щоб виловити останній згенерований в цьому,циклі який буде головою)
             }
+
+            // генеруєм останні 3 кола (очі та ніс) всередині голови (останнього кола згенерованого в попередньому циклі)
             for (int i = 0; i < Main.EYES_NOSE; i++) {
                 circles[i + circles.length - Main.EYES_NOSE] = generateEyesNose(circles[count_i])[i];
             }
@@ -74,7 +76,6 @@ public class CircleScene {
     // всі очі та ніс мають однаковий фіксований радіус, який обчислюється на основі радіусу голови
     // розташування центру очей та носа фіксоване по відношенню до центру голови
     private Circle[] generateEyesNose(Circle circle){
-        Random random = new Random();
         final int DIM = 3;
         int x_head = (int)circle.getCenterX();
         int y_head = (int)circle.getCenterY();
