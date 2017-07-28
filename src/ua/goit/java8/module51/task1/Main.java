@@ -1,4 +1,4 @@
-package ua.goit.java8.module6.task1;
+package ua.goit.java8.module51.task1;
 
 /**
  * Created by t.oleksiv on 26/07/2017.
