@@ -23,6 +23,7 @@ public class CircleScene {
     private Circle[] circles;
     private Label warningLabel;
     private Pane root = new Pane();
+    private Warning warning;
 
     public CircleScene(Stage primaryStage) {
         graphicInterface();
@@ -62,7 +63,7 @@ public class CircleScene {
             root.getChildren().addAll(circles);
         } else {
             // якщо не кола не вміщаються, малюємо попередження
-            generateWarning();
+            warning = new Warning();
         }
 
     }
@@ -118,15 +119,6 @@ public class CircleScene {
         return color;
     }
 
-    // метод для генерації попередження
-    private void generateWarning(){
-        warningLabel = new Label("Надто велика кількість кругів. Не помістяться!");
-        warningLabel.setLayoutX(Main.WIDTH/6);
-        warningLabel.setLayoutY(Main.HEIGHT/3);
-        warningLabel.setFont(new Font("Arial", 30));
-        root.getChildren().addAll(warningLabel);
-    }
-
     // основний метод виведення зображення на сцені
     private void graphicInterface() {
 
@@ -168,7 +160,9 @@ public class CircleScene {
             int count = Integer.parseInt(countField.getText());
             int min_radius = Integer.parseInt(minRadius.getText());
             int max_radius = Integer.parseInt(maxRadius.getText());
-            clearWarnings();
+            if (warning != null){
+                warning.clearWarnings();
+            }
             clearCircles();
             generateCircles(count, min_radius, max_radius);
         });
@@ -200,13 +194,6 @@ public class CircleScene {
         }
     }
 
-    // метод для стирання попередження
-    private void clearWarnings(){
-        if (warningLabel != null){
-            root.getChildren().removeAll(warningLabel);
-        }
-    }
-
     // метод для замальовки всіх кіл вказаним кольором
     private void paintAll(Color color) {
         if (circles == null) return;
@@ -226,6 +213,31 @@ public class CircleScene {
         for (int i = 0; i < circles.length; i++) {
             step = (double)i / circles.length;     // крок градієнта обчислюєм пропорційно до кількості кіл
             circles[i].setFill(Paint.valueOf(Color.color(red + step, green + step, blue + step).toString()));
+        }
+    }
+
+    private class Warning{
+        private Label warningLabel;
+        private Pane root;
+
+        public Warning(){
+            root = CircleScene.this.root;
+            generateWarning();
+        }
+
+        private void generateWarning(){
+            warningLabel = new Label("Надто велика кількість кругів. Не помістяться!");
+            warningLabel.setLayoutX(Main.WIDTH/6);
+            warningLabel.setLayoutY(Main.HEIGHT/3);
+            warningLabel.setFont(new Font("Arial", 30));
+            root.getChildren().addAll(warningLabel);
+        }
+
+        // метод для стирання попередження
+        private void clearWarnings(){
+            if (warningLabel != null){
+                root.getChildren().removeAll(warningLabel);
+            }
         }
     }
 }
